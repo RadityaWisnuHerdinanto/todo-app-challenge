@@ -30,18 +30,28 @@ CORS_ORIGIN=http://localhost:5173
 
 ## Database Setup
 
-### Create PostgreSQL Database
+### Prerequisites
+
+Ensure PostgreSQL is running and accessible at `localhost:5432`.
+
+### Initialize Database
 
 ```bash
-createdb todo_app
-```
-
-### Run Prisma Migrations
-
-```bash
+# Generate Prisma Client
 npm run prisma:generate
-npm run prisma:migrate
+
+# Reset database (creates tables from schema)
+npx prisma migrate reset
 ```
+
+The schema includes:
+- **User** model - User accounts with email-based authentication
+- **Task** model - Tasks with priority levels (LOW, MEDIUM, HIGH)
+- **Timestamps** - `created_at` and `updated_at` on all models
+- **Relations** - One-to-many relationship (User → Tasks)
+- **Cascade Delete** - Deleting a user removes all their tasks
+
+See [prisma/SCHEMA.md](prisma/SCHEMA.md) for detailed schema documentation.
 
 ## Development
 
@@ -64,16 +74,17 @@ npm run prisma:studio
 ```
 server/
 ├── src/
-│   ├── config/          # Configuration files
-│   ├── controllers/      # Route controllers
-│   ├── middleware/       # Express middleware
-│   ├── models/           # Data models
-│   ├── routes/           # Route definitions
-│   ├── services/         # Business logic
-│   ├── utils/            # Utility functions
+│   ├── config/          # Configuration files (database, etc.)
+│   ├── controllers/      # Route controllers (coming soon)
+│   ├── middleware/       # Express middleware (CORS, error handling, logging)
+│   ├── models/           # Data models (coming soon)
+│   ├── routes/           # Route definitions (coming soon)
+│   ├── services/         # Business logic (coming soon)
+│   ├── utils/            # Utility functions (validators)
 │   └── app.js            # Express app configuration
 ├── prisma/
-│   └── schema.prisma     # Database schema
+│   ├── schema.prisma     # Database schema definition
+│   └── SCHEMA.md         # Schema documentation
 ├── .env                  # Environment variables
 ├── .env.example          # Example environment variables
 ├── package.json
