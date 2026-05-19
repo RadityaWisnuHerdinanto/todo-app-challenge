@@ -1,7 +1,8 @@
 import express from "express";
-import { corsMiddleware } from "./src/middleware/cors.js";
-import { errorHandler } from "./src/middleware/errorHandler.js";
-import { requestLogger } from "./src/middleware/requestLogger.js";
+import { corsMiddleware } from "./middleware/cors.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { requestLogger } from "./middleware/requestLogger.js";
+import authRoutes from "./routes/authRoutes.js";
 
 /**
  * Initialize Express application with middleware
@@ -24,8 +25,10 @@ export const createApp = () => {
     });
   });
 
-  // Routes will be added here
-  // app.use("/api/auth", authRoutes);
+  // Auth routes
+  app.use("/api/auth", authRoutes);
+
+  // Task routes will be added here
   // app.use("/api/tasks", taskRoutes);
 
   // 404 handler

@@ -94,6 +94,11 @@ server/
 ## Available Endpoints
 
 - `GET /api/health` - Health check endpoint
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+
+See [src/AUTH.md](src/AUTH.md) for detailed authentication documentation.
 
 ## Scripts
 
