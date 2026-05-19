@@ -1,5 +1,6 @@
 /**
- * Services will contain business logic
- * - User service
- * - Task service
+ * Services index
+ * Business logic layer
  */
+export * from "./authService.js";
+export * from "./taskService.js";

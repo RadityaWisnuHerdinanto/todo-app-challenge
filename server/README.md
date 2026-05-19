@@ -93,12 +93,23 @@ server/
 
 ## Available Endpoints
 
+**Public Routes:**
 - `GET /api/health` - Health check endpoint
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
 
-See [src/AUTH.md](src/AUTH.md) for detailed authentication documentation.
+**Protected Routes (require JWT token):**
+- `GET /api/tasks` - Get all tasks
+- `GET /api/tasks/due/today` - Get tasks due today
+- `GET /api/tasks/:id` - Get single task
+- `POST /api/tasks` - Create new task
+- `PATCH /api/tasks/:id` - Update task
+- `DELETE /api/tasks/:id` - Delete task
+- `PATCH /api/tasks/:id/toggle` - Toggle task completion
+
+See [src/AUTH.md](src/AUTH.md) for authentication documentation.
+See [src/TASKS.md](src/TASKS.md) for task API documentation.
 
 ## Scripts
 

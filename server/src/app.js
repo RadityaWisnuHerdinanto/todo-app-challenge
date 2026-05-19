@@ -3,6 +3,7 @@ import { corsMiddleware } from "./middleware/cors.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import authRoutes from "./routes/authRoutes.js";
+import taskRoutes from "./routes/taskRoutes.js";
 
 /**
  * Initialize Express application with middleware
@@ -28,8 +29,8 @@ export const createApp = () => {
   // Auth routes
   app.use("/api/auth", authRoutes);
 
-  // Task routes will be added here
-  // app.use("/api/tasks", taskRoutes);
+  // Task routes (protected)
+  app.use("/api/tasks", taskRoutes);
 
   // 404 handler
   app.use((req, res) => {
