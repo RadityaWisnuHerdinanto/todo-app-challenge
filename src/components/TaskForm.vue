@@ -38,12 +38,15 @@
 
       <!-- Due Date Input -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
         <input
           v-model="form.due_date"
           type="date"
+          required
+          :min="today"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
+        <p class="text-xs text-gray-500 mt-1">Must be today or later</p>
       </div>
 
       <!-- Priority Select -->
@@ -87,7 +90,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
+import { useToast } from "vue-toastification";
 import { useTaskStore } from "../stores/taskStore.js";
 
 const props = defineProps({
@@ -100,6 +104,7 @@ const props = defineProps({
 const emit = defineEmits(["close", "success"]);
 
 const taskStore = useTaskStore();
+const toast = useToast();
 
 const isEditing = ref(!!props.task);
 
@@ -112,6 +117,12 @@ const form = ref({
 
 const error = ref("");
 const isLoading = ref(false);
+
+// Get today's date in YYYY-MM-DD format for min attribute
+const today = computed(() => {
+  const date = new Date();
+  return date.toISOString().split("T")[0];
+});
 
 // Initialize form with task data if editing
 watch(
@@ -147,6 +158,22 @@ const handleSubmit = async () => {
     return;
   }
 
+  if (!form.value.due_date) {
+    error.value = "Due date is required";
+    return;
+  }
+
+  // Validate due_date is not in the past
+  if (form.value.due_date) {
+    const selectedDate = new Date(form.value.due_date);
+    const todayDate = new Date(today.value);
+    
+    if (selectedDate < todayDate) {
+      error.value = "Due date cannot be in the past";
+      return;
+    }
+  }
+
   isLoading.value = true;
 
   try {
@@ -155,27 +182,31 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       // Update existing task
       result = await taskStore.updateTask(props.task.id, form.value);
+      if (result.success) {
+        toast.success("Task updated successfully! 🎉");
+        emit("success");
+      } else {
+        toast.error(result.error || "Failed to update task");
+      }
     } else {
       // Create new task
       result = await taskStore.createTask(form.value);
-    }
-
-    if (result.success) {
-      emit("success");
-      // Reset form if creating new task
-      if (!isEditing.value) {
+      if (result.success) {
+        toast.success("Task created successfully! ✨");
+        emit("success");
+        // Reset form
         form.value = {
           title: "",
           description: "",
           due_date: "",
           priority: "MEDIUM",
         };
+      } else {
+        toast.error(result.error || "Failed to create task");
       }
-    } else {
-      error.value = result.error || "Failed to save task";
     }
   } catch (err) {
-    error.value = err.message || "An error occurred";
+    toast.error(err.message || "An error occurred");
   } finally {
     isLoading.value = false;
   }

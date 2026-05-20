@@ -82,6 +82,8 @@
 
 <script setup>
 import { ref } from "vue";
+import Swal from "sweetalert2";
+import { useToast } from "vue-toastification";
 import { useTaskStore } from "../stores/taskStore.js";
 
 const props = defineProps({
@@ -94,6 +96,7 @@ const props = defineProps({
 const emit = defineEmits(["edit", "delete", "toggle"]);
 
 const taskStore = useTaskStore();
+const toast = useToast();
 const isLoading = ref(false);
 
 const getPriorityColor = () => {
@@ -123,17 +126,35 @@ const handleToggle = async () => {
   isLoading.value = true;
   const result = await taskStore.toggleTask(props.task.id);
   if (result.success) {
+    const status = props.task.completed ? "Marked as pending" : "Marked as completed";
+    toast.success(status + " ✓");
     emit("toggle", props.task.id);
+  } else {
+    toast.error("Failed to update task");
   }
   isLoading.value = false;
 };
 
 const handleDelete = async () => {
-  if (confirm("Are you sure you want to delete this task?")) {
+  const result = await Swal.fire({
+    title: "Delete Task?",
+    text: `Are you sure you want to delete "${props.task.title}"? This action cannot be undone.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it",
+    cancelButtonText: "Cancel",
+  });
+
+  if (result.isConfirmed) {
     isLoading.value = true;
-    const result = await taskStore.deleteTask(props.task.id);
-    if (result.success) {
+    const deleteResult = await taskStore.deleteTask(props.task.id);
+    if (deleteResult.success) {
+      toast.success("Task deleted successfully 🗑️");
       emit("delete", props.task.id);
+    } else {
+      toast.error(deleteResult.error || "Failed to delete task");
     }
     isLoading.value = false;
   }
