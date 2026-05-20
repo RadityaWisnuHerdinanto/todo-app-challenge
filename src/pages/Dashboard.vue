@@ -1,9 +1,32 @@
 <template>
   <div class="space-y-4 md:space-y-6">
-    <!-- Header -->
-    <div>
-      <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">Dashboard</h1>
-      <p class="hidden md:block text-gray-600 mt-1">Manage your daily tasks</p>
+    <!-- Header with Sorting -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">Dashboard</h1>
+        <p class="hidden md:block text-gray-600 mt-1">Manage your daily tasks</p>
+      </div>
+
+      <!-- Sorting Dropdown -->
+      <div class="flex gap-2">
+        <select
+          v-model="sortBy"
+          @change="loadTasks"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="created_at">Newest</option>
+          <option value="due_date">Due Date</option>
+          <option value="priority">Priority</option>
+          <option value="title">Title</option>
+        </select>
+
+        <button
+          @click="showNewTaskForm = true"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-sm"
+        >
+          + New Task
+        </button>
+      </div>
     </div>
 
     <!-- Due Today Alert -->
@@ -34,30 +57,31 @@
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex gap-3 flex-col md:flex-row">
-      <button @click="showNewTaskForm = true" class="bg-blue-600 text-white px-4 md:px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-        + New Task
-      </button>
-      <button @click="loadTasks" class="hidden md:block bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
-        Refresh
-      </button>
+    <!-- Task Form (Modal/Inline) -->
+    <div v-if="showNewTaskForm || editingTask" class="bg-white rounded-lg border border-gray-200 p-6">
+      <TaskForm
+        :task="editingTask"
+        @close="handleFormClose"
+        @success="handleFormSuccess"
+      />
     </div>
 
-    <!-- Tasks Placeholder -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 md:p-8 text-center text-gray-500">
-      <svg class="w-10 h-10 md:w-12 md:h-12 mx-auto text-gray-300 mb-3 md:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-      <p class="text-base md:text-lg font-medium">No tasks yet</p>
-      <p class="text-xs md:text-sm mt-1">Create your first task to get started</p>
-    </div>
+    <!-- Task List -->
+    <TaskList
+      :tasks="tasks"
+      :sort-by="sortBy"
+      @edit="editingTask = $event; showNewTaskForm = true"
+      @delete="handleTaskDelete"
+      @toggle="loadTasks"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useTaskStore } from "../stores/taskStore.js";
+import TaskForm from "../components/TaskForm.vue";
+import TaskList from "../components/TaskList.vue";
 
 const taskStore = useTaskStore();
 
@@ -66,11 +90,28 @@ const completedCount = computed(() => taskStore.completedCount);
 const incompleteCount = computed(() => taskStore.incompleteCount);
 const dueTodayCount = computed(() => taskStore.dueTodayTasks.length);
 
+const sortBy = ref("created_at");
 const showNewTaskForm = ref(false);
+const editingTask = ref(null);
 
 const loadTasks = async () => {
-  await taskStore.getTasks();
+  await taskStore.getTasks(sortBy.value);
   await taskStore.getDueToday();
+};
+
+const handleFormClose = () => {
+  showNewTaskForm.value = false;
+  editingTask.value = null;
+};
+
+const handleFormSuccess = () => {
+  handleFormClose();
+  loadTasks();
+};
+
+const handleTaskDelete = (taskId) => {
+  // Task already deleted via taskStore in TaskItem component
+  loadTasks();
 };
 
 onMounted(async () => {
