@@ -7,13 +7,14 @@ import prisma from "../config/database.js";
 /**
  * Get all tasks for a user
  */
-export const getTasksForUser = async (userId, sortBy = "created_at") => {
+export const getTasksForUser = async (userId, sortBy = "created_at", sortOrder = "asc") => {
   const validSortFields = ["due_date", "priority", "created_at", "title"];
   const sortField = validSortFields.includes(sortBy) ? sortBy : "created_at";
+  const order = ["asc", "desc"].includes(sortOrder) ? sortOrder : "asc";
 
   return prisma.task.findMany({
     where: { user_id: userId },
-    orderBy: { [sortField]: "asc" },
+    orderBy: { [sortField]: order },
   });
 };
 

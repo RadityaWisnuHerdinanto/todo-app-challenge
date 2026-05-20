@@ -4,7 +4,7 @@
 import apiClient from "./axios.js";
 
 export const taskAPI = {
-  getAll: (sort) => apiClient.get("/api/tasks", { params: { sort } }),
+  getAll: (sort, order = "asc") => apiClient.get("/api/tasks", { params: { sort, order } }),
   getDueToday: () => apiClient.get("/api/tasks/due/today"),
   getOne: (id) => apiClient.get(`/api/tasks/${id}`),
   create: (data) => apiClient.post("/api/tasks", data),

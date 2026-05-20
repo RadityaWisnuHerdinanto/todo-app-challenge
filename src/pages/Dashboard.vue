@@ -7,22 +7,49 @@
         <p class="hidden md:block text-gray-600 mt-1">Manage your daily tasks</p>
       </div>
 
-      <!-- Sorting Dropdown -->
-      <div class="flex gap-2">
-        <select
-          v-model="sortBy"
-          @change="loadTasks"
-          class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="created_at">Newest</option>
-          <option value="due_date">Due Date</option>
-          <option value="priority">Priority</option>
-          <option value="title">Title</option>
-        </select>
+      <!-- Sorting Dropdown & Order Toggle -->
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2">
+          <select
+            v-model="sortBy"
+            @change="loadTasks"
+            class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="created_at">Newest</option>
+            <option value="due_date">Due Date</option>
+            <option value="priority">Priority</option>
+            <option value="title">Title</option>
+          </select>
+
+          <button
+            @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; loadTasks()"
+            class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition flex items-center gap-1"
+            :title="`Sort ${sortOrder === 'asc' ? 'ascending' : 'descending'}`"
+          >
+            <svg
+              v-if="sortOrder === 'asc'"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+            <svg
+              v-else
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </button>
+        </div>
 
         <button
           @click="showNewTaskForm = true"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-sm"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-sm whitespace-nowrap"
         >
           + New Task
         </button>
@@ -91,11 +118,12 @@ const incompleteCount = computed(() => taskStore.incompleteCount);
 const dueTodayCount = computed(() => taskStore.dueTodayTasks.length);
 
 const sortBy = ref("created_at");
+const sortOrder = ref("asc");
 const showNewTaskForm = ref(false);
 const editingTask = ref(null);
 
 const loadTasks = async () => {
-  await taskStore.getTasks(sortBy.value);
+  await taskStore.getTasks(sortBy.value, sortOrder.value);
   await taskStore.getDueToday();
 };
 

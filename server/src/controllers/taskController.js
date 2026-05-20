@@ -16,13 +16,14 @@ import { validateRequiredFields } from "../utils/validators.js";
 
 /**
  * Get all tasks for current user
- * GET /api/tasks?sort=priority
+ * GET /api/tasks?sort=priority&order=asc
  */
 export const getAllTasks = asyncHandler(async (req, res) => {
   const userId = req.user.userId;
   const sortBy = req.query.sort || "created_at";
+  const sortOrder = req.query.order || "asc";
 
-  const tasks = await getTasksForUser(userId, sortBy);
+  const tasks = await getTasksForUser(userId, sortBy, sortOrder);
 
   res.status(200).json({
     success: true,

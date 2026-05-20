@@ -15,11 +15,11 @@ export const useTaskStore = defineStore("task", () => {
   /**
    * Get all tasks
    */
-  const getTasks = async (sortBy = "created_at") => {
+  const getTasks = async (sortBy = "created_at", sortOrder = "asc") => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await taskAPI.getAll(sortBy);
+      const response = await taskAPI.getAll(sortBy, sortOrder);
       tasks.value = response.data.data.tasks;
       return { success: true };
     } catch (err) {
