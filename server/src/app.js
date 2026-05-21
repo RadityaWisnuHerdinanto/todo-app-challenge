@@ -4,6 +4,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import authRoutes from "./routes/authRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 /**
  * Initialize Express application with middleware
@@ -31,6 +32,9 @@ export const createApp = () => {
 
   // Task routes (protected)
   app.use("/api/tasks", taskRoutes);
+
+  // Chat routes (protected)
+  app.use("/api/chat", chatRoutes);
 
   // 404 handler
   app.use((req, res) => {

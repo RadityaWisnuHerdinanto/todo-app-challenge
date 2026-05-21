@@ -17,6 +17,9 @@
       <DesktopLayout v-else class="h-full">
         <router-view />
       </DesktopLayout>
+
+      <!-- AI Chatbot (only on protected routes) -->
+      <Chatbot />
     </div>
 
     <!-- Auth pages (no layout) -->
@@ -31,6 +34,7 @@ import { useAuthStore } from "./stores/authStore.js";
 import MobileLayout from "./layouts/MobileLayout.vue";
 import TabletLayout from "./layouts/TabletLayout.vue";
 import DesktopLayout from "./layouts/DesktopLayout.vue";
+import Chatbot from "./components/Chatbot.vue";
 
 const route = useRoute();
 const authStore = useAuthStore();
