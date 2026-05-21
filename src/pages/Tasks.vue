@@ -3,8 +3,8 @@
     <!-- Header with Sorting -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">Dashboard</h1>
-        <p class="hidden md:block text-gray-600 mt-1">Manage your daily tasks</p>
+        <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">All Tasks</h1>
+        <p class="hidden md:block text-gray-600 mt-1">View and manage all your tasks</p>
       </div>
 
       <!-- Sorting Dropdown & Order Toggle -->
@@ -66,22 +66,41 @@
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
-      <div class="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-        <p class="text-gray-600 text-xs md:text-sm font-medium">Total Tasks</p>
-        <p class="text-2xl md:text-3xl font-bold mt-2">{{ tasks.length }}</p>
-      </div>
-
-      <div class="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-        <p class="text-gray-600 text-xs md:text-sm font-medium">Completed</p>
-        <p class="text-2xl md:text-3xl font-bold text-green-600 mt-2">{{ completedCount }}</p>
-      </div>
-
-      <div class="hidden md:block bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-        <p class="text-gray-600 text-xs md:text-sm font-medium">Pending</p>
-        <p class="text-2xl md:text-3xl font-bold text-blue-600 mt-2">{{ incompleteCount }}</p>
-      </div>
+    <!-- Filter Buttons -->
+    <div class="flex gap-2 flex-wrap">
+      <button
+        @click="filterBy = 'all'"
+        :class="[
+          'px-4 py-2 rounded-full text-sm font-medium transition',
+          filterBy === 'all'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        ]"
+      >
+        All ({{ tasks.length }})
+      </button>
+      <button
+        @click="filterBy = 'pending'"
+        :class="[
+          'px-4 py-2 rounded-full text-sm font-medium transition',
+          filterBy === 'pending'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        ]"
+      >
+        Pending ({{ incompleteCount }})
+      </button>
+      <button
+        @click="filterBy = 'completed'"
+        :class="[
+          'px-4 py-2 rounded-full text-sm font-medium transition',
+          filterBy === 'completed'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        ]"
+      >
+        Completed ({{ completedCount }})
+      </button>
     </div>
 
     <!-- Task Form (Modal/Inline) -->
@@ -94,13 +113,16 @@
     </div>
 
     <!-- Task List -->
-    <TaskList
-      :tasks="tasks"
-      :sort-by="sortBy"
-      @edit="editingTask = $event; showNewTaskForm = true"
-      @delete="handleTaskDelete"
-      @toggle="loadTasks"
-    />
+    <div v-if="!showNewTaskForm && !editingTask">
+      <TaskList
+        :tasks="tasks"
+        :sort-by="sortBy"
+        :filter="filterBy"
+        @edit="editingTask = $event; showNewTaskForm = true"
+        @delete="handleTaskDelete"
+        @toggle="loadTasks"
+      />
+    </div>
   </div>
 </template>
 
@@ -119,6 +141,7 @@ const dueTodayCount = computed(() => taskStore.dueTodayTasks.length);
 
 const sortBy = ref("created_at");
 const sortOrder = ref("asc");
+const filterBy = ref("all");
 const showNewTaskForm = ref(false);
 const editingTask = ref(null);
 
@@ -138,7 +161,6 @@ const handleFormSuccess = () => {
 };
 
 const handleTaskDelete = (taskId) => {
-  // Task already deleted via taskStore in TaskItem component
   loadTasks();
 };
 

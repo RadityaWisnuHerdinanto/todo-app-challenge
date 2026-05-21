@@ -126,7 +126,8 @@ const handleToggle = async () => {
   isLoading.value = true;
   const result = await taskStore.toggleTask(props.task.id);
   if (result.success) {
-    const status = props.task.completed ? "Marked as pending" : "Marked as completed";
+    // Use NEW state from API, not old state
+    const status = result.task.completed ? "Marked as completed" : "Marked as pending";
     toast.success(status + " ✓");
     emit("toggle", props.task.id);
   } else {

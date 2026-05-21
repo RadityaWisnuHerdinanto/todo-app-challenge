@@ -48,7 +48,7 @@
       <!-- Header -->
       <div class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-gray-900">Dashboard</h2>
+          <h2 class="text-xl font-semibold text-gray-900">{{ getHeaderTitle() }}</h2>
           <div class="flex items-center gap-4">
             <span class="text-sm text-gray-600">Welcome, {{ authStore.user?.name }}</span>
           </div>
@@ -67,10 +67,19 @@
 
 <script setup>
 import { useAuthStore } from "../stores/authStore.js";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
+
+const getHeaderTitle = () => {
+  const titles = {
+    Dashboard: "Dashboard",
+    Tasks: "All Tasks",
+  };
+  return titles[route.name] || "Dashboard";
+};
 
 const handleLogout = async () => {
   await authStore.logout();
